@@ -1,13 +1,17 @@
-from django.test import TestCase
 from django.urls import resolve, reverse
 
 from recipes import views
-from recipes.models import Category, Recipe, User
+
+from .test_recipe_base import RecipeTestBase
 
 # We're testing that the view functions are correct
 
 
-class RecipeViewsTest(TestCase):
+class RecipeViewsTest(RecipeTestBase):
+
+    def tearDown(self) -> None:
+        return super().tearDown()
+
     def test_recipe_home_view_function_is_correct(self):
         # It's taking the url name 'recipes:home' and reversing it to '/'.
         # Then it's resolving that url to the view function.
@@ -27,9 +31,6 @@ class RecipeViewsTest(TestCase):
         response = self.client.get(reverse('recipes:home'))
         self.assertEqual(response.status_code, 200)
 
-    # ! The DataBase of test is different from the DataBase of the system
-    # ! This tests will fail, to make that pass we should add recipes
-    # ! to Test DataBase.
     def test_recipe_category_view_returns_status_code_200_OK(self):
         response = self.client.get(
             reverse('recipes:category', kwargs={'category_id': 1}))
@@ -42,33 +43,11 @@ class RecipeViewsTest(TestCase):
     def test_recipe_home_template_shows_no_recipes_found_if_no_recipes(self):  # noqa
         response = self.client.get(reverse('recipes:home'))
         self.assertIn(
-            'No Recipes Yet :/',
+            '<h1>No Recipes Yet :/</h1>',
             response.content.decode('utf-8')
         )
 
     def test_recipe_home_template_loads_recipes(self):
-        category = Category.objects.create(name='Category')
-        author = User.objects.create_user(
-            first_name='user',
-            last_name='name',
-            username='user name',
-            password='123',
-            email='user@email.com',
-        )
-        recipe = Recipe.objects.create(  # noqa: F841
-            category=category,
-            author=author,
-            title='Recipe Title',
-            description='recipe descricao',
-            slug='recipe-slug',
-            preparation_time=10,
-            preparation_time_unit='min',
-            servings=5,
-            servings_unit='porções',
-            preparation_steps='recipe preparation_steps',
-            preparation_steps_is_html=False,
-            is_published=True,
-        )
         response = self.client.get(reverse('recipes:home'))
         content = response.content.decode('utf-8')
         response_context_recipes = response.context['recipes']
