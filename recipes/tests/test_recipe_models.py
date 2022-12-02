@@ -19,3 +19,19 @@ class RecipeModelTest(RecipeTestBase):
         setattr(self.recipe, field, 'A' * (max_length + 1))
         with self.assertRaises(ValidationError):
             self.recipe.full_clean()
+
+    def teste_recipe_preparation_steps_is_html_is_false_by_default(self):
+        recipe = self.make_recipe_no_default()
+        self.recipe.full_clean()
+        self.recipe.save()
+        self.assertFalse(
+            recipe.preparation_steps_is_html,
+            msg='Recipe preparation_steps_is_html is not False'
+        )
+
+    def teste_recipe_preparation_steps_is_published_is_false_by_default(self):
+        recipe = self.make_recipe_no_default()
+        self.assertFalse(
+            recipe.is_published,
+            msg='Recipe is_published is not False'
+        )
