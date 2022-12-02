@@ -40,6 +40,38 @@ class RecipeViewsTest(RecipeTestBase):
         response = self.client.get(reverse('recipes:home'))
         self.assertTemplateUsed(response, 'recipes/pages/home.html')
 
+    def test_recipe_home_template_dont_load_recipes_not_published(self):
+        self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:home'))
+        content = response.content.decode('utf-8')
+        self.assertIn('No Recipes Yet :/', content)
+
+    def test_recipe_category_template_dont_load_recipes_not_published(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(
+            reverse(
+                'recipes:recipe',
+                kwargs={
+                    'id': recipe.category.id
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_recipe_detail_template_dont_load_recipe_not_published(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(
+            reverse(
+                'recipes:recipe',
+                kwargs={
+                    'id': recipe.id
+                }
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     def test_recipe_home_template_show_no_recipes_found_if_no_recipes(self):
         response = self.client.get(reverse('recipes:home'))
         content = response.content.decode('utf-8')
@@ -47,10 +79,28 @@ class RecipeViewsTest(RecipeTestBase):
 
     def test_recipe_home_template_loads_recipes(self):
         self.make_recipe()
+
         response = self.client.get(reverse('recipes:home'))
         content = response.content.decode('utf-8')
         response_context_recipes = response.context['recipes']
+
         self.assertIn('Recipe Title', content)
         self.assertIn('10 min', content)
         self.assertIn('5 porções', content)
         self.assertEqual(len(response_context_recipes), 1)
+
+    def test_recipe_category_template_loads_recipes(self):
+        self.make_recipe()
+
+        response = self.client.get(reverse('recipes:category', args=(1,)))
+        content = response.content.decode('utf-8')
+
+        self.assertIn('Recipe Title', content)
+
+    def test_recipe_detail_template_loads_correct_recipes(self):
+        self.make_recipe()
+
+        response = self.client.get(reverse('recipes:recipe', args=(1,)))
+        content = response.content.decode('utf-8')
+
+        self.assertIn('Recipe Title', content)
