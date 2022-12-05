@@ -23,7 +23,7 @@ def category(request, category_id):
     # get_list_or_404
     recipes = get_list_or_404(
         Recipe.objects.filter(
-            category__id=category_id,
+            category_id=category_id,
             is_published=True,
         ).order_by('-id')
     )
