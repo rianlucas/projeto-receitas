@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 
-# We're testing that the urls for our recipes app are correct
+# I'm testing that the urls for our recipes app are correct
 class RecipeUrlsTest(TestCase):
     def test_recipe_home_url_is_correct(self):
         home_url = reverse('recipes:home')
@@ -15,3 +15,7 @@ class RecipeUrlsTest(TestCase):
     def test_recipe_detail_url_is_correct(self):
         recipe_url = reverse('recipes:recipe', kwargs={'id': 1})
         self.assertEqual(recipe_url, '/recipes/1/')
+
+    def test_recipe_search_url_is_correct(self):
+        url = reverse('recipes:search')
+        self.assertEqual(url, '/recipes/search/')
